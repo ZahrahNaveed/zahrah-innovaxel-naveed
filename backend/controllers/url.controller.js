@@ -18,3 +18,23 @@ exports.createShortUrl = async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 };
+
+// GET /shorten/:shortCode
+exports.getOriginalUrl = async (req, res) => {
+  const { shortCode } = req.params;
+
+  try {
+    const found = await Url.findOne({ shortCode });
+    if (!found) {
+      return res.status(404).json({ error: "Short URL not found" });
+    }
+
+    // Increment access count
+    found.accessCount += 1;
+    await found.save();
+
+    res.json(found);
+  } catch (err) {
+    res.status(500).json({ error: "Server Error" });
+  }
+};
